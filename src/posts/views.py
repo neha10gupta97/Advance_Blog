@@ -1,8 +1,9 @@
-from django.http import HttpResponse
-from django.shortcuts import render ,get_object_or_404
+from django.http import HttpResponse , HttpResponseRedirect
+from django.contrib import messages
+from django.shortcuts import render ,get_object_or_404,redirect
 
 from .models import Post
-from .form import PostForm
+from .forms import PostForm
 # Create your views here.
 def post_create(request):
     form = PostForm(request.POST or None)   #for making fileds required
@@ -10,6 +11,10 @@ def post_create(request):
         instance = form.save(commit=False)
         print form.cleaned_data.get("title")
         instance.save()
+        messages.success(request,"Successsfully Created") #,extra_tags="html_safe/something"
+        return HttpResponseRedirect(instance.get_absolute_url())
+    else:
+        messages.error(request, "Not Successsfully Created")
     # if request.method=="POST":
     #     print request.POST.get("content")    #will except empty values
     #     print request.POST.get("title")
@@ -42,9 +47,27 @@ def post_list(request):  #list_items
     #     }
     return render(request,"index.html",context)
 
-def post_update(request):
-    return HttpResponse("<h1>UPDATE</h1>")
+def post_update(request, id=None):
+    instance = get_object_or_404(Post, id=id)
+    form = PostForm(request.POST or None,instance=instance)  # for making fileds required
+    if form.is_valid():
+        instance = form.save(commit=False)
+        print form.cleaned_data.get("title")
+        instance.save()
+        messages.success(request, "Successsfully Updated")
+        return HttpResponseRedirect(instance.get_absolute_url())   #message succes
 
-def post_delete(request):
-    return HttpResponse("<h1>DELETE</h1>")
+
+    context = {
+        "title": instance.title,
+        "instance": instance,
+        "form":form
+    }
+    return render(request, "post_form.html", context)
+
+def post_delete(request,id=None):
+    instance = get_object_or_404(Post, id=id)
+    instance.delete()
+    messages.success(request, "Successsfully Deleted")
+    return redirect("posts:list")
 
