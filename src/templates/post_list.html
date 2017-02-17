@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
+{% block content %}
+
+
   <p>{{ title }} is workingggg</p>
 
     {% for obj in object_list %}
@@ -14,5 +11,5 @@
         {{ obj.updated }} </br>
         {{obj.timestamp}} </br> </br>
     {% endfor %}
-</body>
-</html>
+
+{% endblock content %}
